@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: hive-kit-node
+    env: docker
+    rootDir: ./node
+    dockerfilePath: ./deploy/Dockerfile
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: DB_NAME
+        value: hivekit
+      - key: SERVER_AUTH
+        sync: false
+      - key: REQUEST_LIMIT_RPS
+        value: "10"
+      - key: BODY_LIMIT_BYTES
+        value: "65536"
+      - key: VERSION
+        value: v0.1.0
+      - key: LOG_LEVEL
+        value: info
+      - key: ALLOW_CLIENT_WRITE
+        value: "false"
+      - key: ALLOWLIST_CIDRS
+        value: ""

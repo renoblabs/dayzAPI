@@ -1,0 +1,13 @@
+# Node
+node/node_modules/
+node/dist/
+node/.env
+
+# Root env
+.env
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
