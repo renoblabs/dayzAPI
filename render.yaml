@@ -50,4 +50,5 @@ databases:
     user: hive
     # Allow all services/IPs during beta testing.
     # Replace with specific CIDR blocks or service references for production.
-    ipAllowList: []
+    ipAllowList:
+      - "0.0.0.0/0"
