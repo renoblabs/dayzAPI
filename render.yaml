@@ -48,5 +48,6 @@ databases:
     region: oregon
     databaseName: hive
     user: hive
-    ipAllowList:
-      - source: service:hiveapi
+    # Allow all services/IPs during beta testing.
+    # Replace with specific CIDR blocks or service references for production.
+    ipAllowList: []
