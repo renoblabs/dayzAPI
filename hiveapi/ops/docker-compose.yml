@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: ops/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_URL=postgresql+psycopg://postgres:postgres@db:5432/hive
+      - REDIS_URL=redis://redis:6379/0
+      - JWT_ISSUER=hiveapi
+      - REQUEST_SIGNATURE_REQUIRED=false
+      - IDEMPOTENCY_TTL_SECONDS=600
+      - MOVE_TICKET_TTL_SECONDS=90
+      - LOGOUT_GRACE_SECONDS=30
+      - SERVER_SWITCH_COOLDOWN_SECONDS=180
+      - PROMETHEUS_METRICS=true
+      - LOG_LEVEL=INFO
+    volumes:
+      - ../keys:/keys
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:16
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=hive
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    command: postgres -c shared_preload_libraries=pgcrypto
+
+  redis:
+    image: redis:latest
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "9090:9090"
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana-provisioning:/etc/grafana/provisioning
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  prometheus_data:
+  grafana_data:
