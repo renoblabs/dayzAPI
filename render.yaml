@@ -49,4 +49,4 @@ databases:
     databaseName: hive
     user: hive
     ipAllowList:
-      - source: service:hiveapi
+      - "0.0.0.0/0"
