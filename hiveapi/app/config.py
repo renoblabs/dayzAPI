@@ -43,6 +43,10 @@ class Settings(BaseModel):
         default=True,
         description="Require HTTP signatures for server endpoints"
     )
+    ORIGIN_SECRET: Optional[str] = Field(
+        default="",
+        description="Secret for origin verification with Cloudflare Tunnel"
+    )
     
     # TTL settings
     IDEMPOTENCY_TTL_SECONDS: int = Field(
@@ -110,6 +114,7 @@ def get_settings() -> Settings:
         JWT_ALGORITHM=os.getenv("JWT_ALGORITHM", Settings().JWT_ALGORITHM),
         JWT_ACCESS_TOKEN_EXPIRE_MINUTES=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRE_MINUTES", Settings().JWT_ACCESS_TOKEN_EXPIRE_MINUTES)),
         REQUEST_SIGNATURE_REQUIRED=os.getenv("REQUEST_SIGNATURE_REQUIRED", "True").lower() in ("true", "1", "t"),
+        ORIGIN_SECRET=os.getenv("ORIGIN_SECRET", Settings().ORIGIN_SECRET),
         IDEMPOTENCY_TTL_SECONDS=int(os.getenv("IDEMPOTENCY_TTL_SECONDS", Settings().IDEMPOTENCY_TTL_SECONDS)),
         MOVE_TICKET_TTL_SECONDS=int(os.getenv("MOVE_TICKET_TTL_SECONDS", Settings().MOVE_TICKET_TTL_SECONDS)),
         LOGOUT_GRACE_SECONDS=int(os.getenv("LOGOUT_GRACE_SECONDS", Settings().LOGOUT_GRACE_SECONDS)),

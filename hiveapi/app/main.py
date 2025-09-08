@@ -7,7 +7,7 @@ sets up Prometheus metrics, and includes all routers.
 
 import logging
 import time
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response, Header, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 import prometheus_client
@@ -52,6 +52,25 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Add origin verification middleware
+@app.middleware("http")
+async def origin_verification_middleware(request: Request, call_next):
+    """
+    Verify request origin using a secret header if configured.
+    This prevents unauthorized access when exposed via Cloudflare Tunnel.
+    """
+    if settings.ORIGIN_SECRET:
+        origin_secret = request.headers.get("X-Origin-Secret")
+        if not origin_secret or origin_secret != settings.ORIGIN_SECRET:
+            logger.warning(f"Origin verification failed for {request.url.path}")
+            return JSONResponse(
+                status_code=status.HTTP_403_FORBIDDEN,
+                content={"detail": "Origin verification failed"}
+            )
+    
+    response = await call_next(request)
+    return response
 
 # Add middleware for Prometheus metrics
 @app.middleware("http")
@@ -165,4 +184,4 @@ async def shutdown_event():
 # If this module is run directly, start the application with Uvicorn
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("app.main:app", host="0.0.0.0", port="8000", reload=True)
