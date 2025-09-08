@@ -3,8 +3,8 @@ services:
     name: hiveapi
     env: docker
     plan: starter
-    autoDeploy: true
     region: oregon
+    autoDeploy: true
     dockerfilePath: ./hiveapi/ops/Dockerfile
     dockerContext: ./hiveapi
     healthCheckPath: /health
@@ -33,16 +33,12 @@ services:
       - key: AUTO_SEED
         value: "true"
 
-  # Managed Redis service
   - type: redis
     name: hive-redis
     region: oregon
     plan: starter
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: everywhere
-      - source: ::/0
-        description: everywhere-v6
+    ipAllowList: []
+
 
 databases:
   - name: hive-db
@@ -50,8 +46,4 @@ databases:
     region: oregon
     databaseName: hive
     user: hive
-    ipAllowList:
-      - source: 0.0.0.0/0
-        description: everywhere
-      - source: ::/0
-        description: everywhere-v6
+    ipAllowList: []
