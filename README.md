@@ -1,4 +1,4 @@
-dayZ token transfer API Service
+draft readme for dayZ token transfer API Service
 
 You’re basically holding a trusted, one-time handoff mechanism between the game and an external brain (Mongo/Postgres). That means anything that benefits from atomic, one-time, cross-context actions is fair game.
 
