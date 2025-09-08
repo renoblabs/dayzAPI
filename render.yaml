@@ -1,61 +1,48 @@
 services:
-  # FastAPI HiveAPI web service
   - type: web
     name: hiveapi
     env: docker
-    region: oregon
     plan: starter
+    autoDeploy: true
+    region: oregon
     dockerfilePath: ./hiveapi/ops/Dockerfile
     dockerContext: ./hiveapi
     healthCheckPath: /health
-    numInstances: 1
     envVars:
       - key: DB_URL
         fromDatabase:
-          name: hiveapi-db
+          name: hive-db
           property: connectionString
       - key: REDIS_URL
         fromService:
           type: redis
-          name: hiveapi-redis
+          name: hive-redis
           property: connectionString
       - key: REQUEST_SIGNATURE_REQUIRED
-        value: false
-      - key: JWT_ISSUER
-        value: hiveapi
-      - key: IDEMPOTENCY_TTL_SECONDS
-        value: 600
-      - key: MOVE_TICKET_TTL_SECONDS
-        value: 90
-      - key: LOGOUT_GRACE_SECONDS
-        value: 30
-      - key: SERVER_SWITCH_COOLDOWN_SECONDS
-        value: 180
+        value: "false"
       - key: PROMETHEUS_METRICS
-        value: true
+        value: "true"
       - key: LOG_LEVEL
-        value: INFO
+        value: "INFO"
       - key: ADMIN_ENABLED
-        value: true
+        value: "true"
       - key: ADMIN_USERNAME
-        value: admin
+        value: "admin"
       - key: ADMIN_PASSWORD
         generateValue: true
       - key: AUTO_SEED
-        value: true
+        value: "true"
 
-
-  # PostgreSQL database
-  - type: postgres
-    name: hiveapi-db
-    region: oregon
-    plan: starter
-
-  # Redis instance
+  # Managed Redis service
   - type: redis
-    name: hiveapi-redis
+    name: hive-redis
     region: oregon
     plan: starter
-    ipAllowList:
-      - source: 0.0.0.0/0
+
+databases:
+  - name: hive-db
+    plan: starter
+    region: oregon
+    databaseName: hive
+    user: hive
         description: everywhere
