@@ -45,4 +45,3 @@ databases:
     region: oregon
     databaseName: hive
     user: hive
-        description: everywhere
