@@ -18,6 +18,7 @@ services:
       - SERVER_SWITCH_COOLDOWN_SECONDS=180
       - PROMETHEUS_METRICS=true
       - LOG_LEVEL=INFO
+      - ORIGIN_SECRET=${ORIGIN_SECRET:-}
     volumes:
       - ../keys:/keys
     depends_on:
@@ -74,6 +75,16 @@ services:
     depends_on:
       - prometheus
     restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+      - ORIGIN_SECRET=${ORIGIN_SECRET:-}
+    depends_on:
+      - api
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${TUNNEL_TOKEN}
 
 volumes:
   postgres_data:
