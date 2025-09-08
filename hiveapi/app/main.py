@@ -160,6 +160,8 @@ def _include_router(module_name: str, prefix: str, tag: str) -> None:
 _include_router("auth", "/v1/auth", "auth")
 _include_router("characters", "/v1/characters", "characters")
 _include_router("inventory", "/v1/inventory", "inventory")
+# Server stub (test utilities)
+_include_router("server_stub", "/v1/server-stub", "server-stub")
 
 # Admin router (optional)
 if settings.ADMIN_ENABLED:

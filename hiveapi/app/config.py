@@ -9,6 +9,20 @@ import os
 from typing import Optional, Dict, Any
 from pydantic import BaseModel, Field
 
+def normalize_db_url(url: str) -> str:
+    """
+    Normalize a Postgres URL so SQLAlchemy 2.x (with psycopg3) can parse it.
+
+    Render/Railway often supply URLs starting with ``postgres://`` or
+    ``postgresql://``.  The async/psycopg3 driver used by SQLAlchemy expects
+    ``postgresql+psycopg://``.
+    """
+    if url.startswith("postgres://"):
+        return url.replace("postgres://", "postgresql+psycopg://", 1)
+    if url.startswith("postgresql://") and "+psycopg" not in url:
+        return url.replace("postgresql://", "postgresql+psycopg://", 1)
+    return url
+
 class Settings(BaseModel):
     """Application settings loaded from environment variables with defaults."""
     
@@ -107,8 +121,9 @@ def get_settings() -> Settings:
     Returns:
         Settings object with values from environment variables or defaults
     """
+    raw_db_url = os.getenv("DB_URL", Settings().DB_URL)
     return Settings(
-        DB_URL=os.getenv("DB_URL", Settings().DB_URL),
+        DB_URL=normalize_db_url(raw_db_url),
         REDIS_URL=os.getenv("REDIS_URL", Settings().REDIS_URL),
         JWT_ISSUER=os.getenv("JWT_ISSUER", Settings().JWT_ISSUER),
         JWT_ALGORITHM=os.getenv("JWT_ALGORITHM", Settings().JWT_ALGORITHM),

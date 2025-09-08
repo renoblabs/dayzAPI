@@ -14,10 +14,6 @@ services:
         fromDatabase:
           name: hiveapi-db
           property: connectionString
-          # Replace psql:// with postgresql+psycopg:// for SQLAlchemy
-          replace:
-            fromPattern: ^postgres://(.*)$
-            toPattern: postgresql+psycopg://$1
       - key: REDIS_URL
         fromService:
           type: redis
@@ -45,8 +41,9 @@ services:
         value: admin
       - key: ADMIN_PASSWORD
         generateValue: true
-    postDeployCommand: |
-      cd /app && alembic upgrade head && python -m scripts.seed
+      - key: AUTO_SEED
+        value: true
+
 
   # PostgreSQL database
   - type: pserv
