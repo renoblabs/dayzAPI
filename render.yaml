@@ -1,0 +1,69 @@
+services:
+  # FastAPI HiveAPI web service
+  - type: web
+    name: hiveapi
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./hiveapi/ops/Dockerfile
+    dockerContext: ./hiveapi
+    healthCheckPath: /health
+    numInstances: 1
+    envVars:
+      - key: DB_URL
+        fromDatabase:
+          name: hiveapi-db
+          property: connectionString
+          # Replace psql:// with postgresql+psycopg:// for SQLAlchemy
+          replace:
+            fromPattern: ^postgres://(.*)$
+            toPattern: postgresql+psycopg://$1
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: hiveapi-redis
+          property: connectionString
+      - key: REQUEST_SIGNATURE_REQUIRED
+        value: false
+      - key: JWT_ISSUER
+        value: hiveapi
+      - key: IDEMPOTENCY_TTL_SECONDS
+        value: 600
+      - key: MOVE_TICKET_TTL_SECONDS
+        value: 90
+      - key: LOGOUT_GRACE_SECONDS
+        value: 30
+      - key: SERVER_SWITCH_COOLDOWN_SECONDS
+        value: 180
+      - key: PROMETHEUS_METRICS
+        value: true
+      - key: LOG_LEVEL
+        value: INFO
+      - key: ADMIN_ENABLED
+        value: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        generateValue: true
+    postDeployCommand: |
+      cd /app && alembic upgrade head && python -m scripts.seed
+
+  # PostgreSQL database
+  - type: pserv
+    name: hiveapi-db
+    env: docker
+    region: oregon
+    plan: free
+    disk:
+      name: data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 10
+
+  # Redis instance
+  - type: redis
+    name: hiveapi-redis
+    region: oregon
+    plan: free
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
