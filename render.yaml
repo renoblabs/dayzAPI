@@ -48,3 +48,5 @@ databases:
     region: oregon
     databaseName: hive
     user: hive
+    ipAllowList:
+      - source: service:hiveapi
