@@ -41,6 +41,8 @@ services:
     ipAllowList:
       - source: 0.0.0.0/0
         description: everywhere
+      - source: ::/0
+        description: everywhere-v6
 
 databases:
   - name: hive-db
@@ -49,4 +51,7 @@ databases:
     databaseName: hive
     user: hive
     ipAllowList:
-      - "0.0.0.0/0"
+      - source: 0.0.0.0/0
+        description: everywhere
+      - source: ::/0
+        description: everywhere-v6
