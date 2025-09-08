@@ -38,6 +38,9 @@ services:
     name: hive-redis
     region: oregon
     plan: starter
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
 
 databases:
   - name: hive-db
@@ -45,3 +48,5 @@ databases:
     region: oregon
     databaseName: hive
     user: hive
+    ipAllowList:
+      - source: service:hiveapi
